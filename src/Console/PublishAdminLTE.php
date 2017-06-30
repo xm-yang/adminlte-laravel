@@ -55,10 +55,13 @@ class PublishAdminLTE extends Command
     public function handle()
     {
         $this->processOptions();
+
+        //Publish
         $this->publishHomeController();
         $this->changeRegisterController();
         $this->changeLoginController();
         $this->changeForgotPasswordController();
+        $this->publishNoGuestForgotPasswordController();
         $this->changeResetPasswordController();
         $this->publishPublicAssets();
         $this->publishViews();
@@ -69,6 +72,8 @@ class PublishAdminLTE extends Command
         $this->publishConfig();
         $this->publishWebRoutes();
         $this->publishApiRoutes();
+        $this->publishDusk();
+        $this->publishDatabaseConfig();
     }
 
     /**
@@ -101,6 +106,14 @@ class PublishAdminLTE extends Command
     private function changeForgotPasswordController()
     {
         $this->install(\Acacha\AdminLTETemplateLaravel\Facades\AdminLTE::forgotPasswordController());
+    }
+
+    /**
+     * Publish no guest forgot password Controller.
+     */
+    private function publishNoGuestForgotPasswordController()
+    {
+        $this->install(\Acacha\AdminLTETemplateLaravel\Facades\AdminLTE::noGuestForgotPasswordController());
     }
 
     /**
@@ -181,6 +194,39 @@ class PublishAdminLTE extends Command
     private function publishApiRoutes()
     {
         $this->install(\Acacha\AdminLTETemplateLaravel\Facades\AdminLTE::apiroutes());
+    }
+
+    /**
+     * Publish dusk tests files.
+     */
+    private function publishDusk()
+    {
+        $this->publishDuskEnvironment();
+        $this->publishAppServiceProvider();
+    }
+
+    /**
+     * Publish dusk environment files.
+     */
+    private function publishDuskEnvironment()
+    {
+        $this->install(\Acacha\AdminLTETemplateLaravel\Facades\AdminLTE::duskEnvironment());
+    }
+
+    /**
+     * Publish app/Providers/AppServiceProvider.php file.
+     */
+    private function publishAppServiceProvider()
+    {
+        $this->install(\Acacha\AdminLTETemplateLaravel\Facades\AdminLTE::appServiceProviderClass());
+    }
+
+    /**
+     * Publish config/database.php file.
+     */
+    private function publishDatabaseConfig()
+    {
+        $this->install(\Acacha\AdminLTETemplateLaravel\Facades\AdminLTE::databaseConfig());
     }
 
     /**

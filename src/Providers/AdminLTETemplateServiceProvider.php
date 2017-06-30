@@ -6,7 +6,7 @@ use Acacha\AdminLTETemplateLaravel\Facades\AdminLTE;
 use Acacha\User\Providers\GuestUserServiceProvider;
 use Creativeorange\Gravatar\Facades\Gravatar;
 use Creativeorange\Gravatar\GravatarServiceProvider;
-use Illuminate\Console\AppNamespaceDetectorTrait;
+use Illuminate\Console\DetectsApplicationNamespace;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -14,7 +14,7 @@ use Illuminate\Support\ServiceProvider;
  */
 class AdminLTETemplateServiceProvider extends ServiceProvider
 {
-    use AppNamespaceDetectorTrait;
+    use DetectsApplicationNamespace;
 
     /**
      * Register the application services.
@@ -38,8 +38,10 @@ class AdminLTETemplateServiceProvider extends ServiceProvider
             $this->commands([\Acacha\AdminLTETemplateLaravel\Console\AdminLTEMenuAlt::class]);
             $this->commands([\Acacha\AdminLTETemplateLaravel\Console\MakeRoute::class]);
             $this->commands([\Acacha\AdminLTETemplateLaravel\Console\MakeMenu::class]);
+            $this->commands([\Acacha\AdminLTETemplateLaravel\Console\MakeV::class]);
             $this->commands([\Acacha\AdminLTETemplateLaravel\Console\MakeVC::class]);
             $this->commands([\Acacha\AdminLTETemplateLaravel\Console\MakeMVC::class]);
+            $this->commands([\Acacha\AdminLTETemplateLaravel\Console\Username::class]);
         }
 
         $this->app->bind('AdminLTE', function () {
@@ -52,6 +54,9 @@ class AdminLTETemplateServiceProvider extends ServiceProvider
 
         if (config('adminlte.guestuser', true)) {
             $this->registerGuestUserProvider();
+        }
+        if (config('auth.providers.users.field', 'email') === 'username') {
+            $this->loadMigrationsFrom(ADMINLTETEMPLATE_PATH .'/database/migrations/username_login');
         }
     }
 
@@ -80,10 +85,13 @@ class AdminLTETemplateServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->defineRoutes();
+
+        //Publish
         $this->publishHomeController();
         $this->changeRegisterController();
         $this->changeLoginController();
         $this->changeForgotPasswordController();
+        $this->publishNoGuestForgotPasswordController();
         $this->changeResetPasswordController();
         $this->publishPublicAssets();
         $this->publishViews();
@@ -94,6 +102,9 @@ class AdminLTETemplateServiceProvider extends ServiceProvider
         $this->publishConfig();
         $this->publishWebRoutes();
         $this->publishApiRoutes();
+        $this->publishDusk();
+        $this->publishDatabaseConfig();
+
         $this->enableSpatieMenu();
     }
 
@@ -141,6 +152,14 @@ class AdminLTETemplateServiceProvider extends ServiceProvider
     private function changeForgotPasswordController()
     {
         $this->publishes(AdminLTE::forgotPasswordController(), 'adminlte');
+    }
+
+    /**
+     * Publish no guest forgot password Controller.
+     */
+    private function publishNoGuestForgotPasswordController()
+    {
+        $this->publishes(AdminLTE::noGuestForgotPasswordController(), 'adminlte');
     }
 
     /**
@@ -228,9 +247,42 @@ class AdminLTETemplateServiceProvider extends ServiceProvider
     }
 
     /**
+     * Publish dusk tests files.
+     */
+    private function publishDusk()
+    {
+        $this->publishDuskEnvironment();
+        $this->publishAppServiceProvider();
+    }
+
+    /**
+     * Publish dusk environment files.
+     */
+    private function publishDuskEnvironment()
+    {
+        $this->publishes(AdminLTE::duskEnvironment(), 'adminlte');
+    }
+
+    /**
+     * Publish app/Providers/AppServiceProvider.php file.
+     */
+    private function publishAppServiceProvider()
+    {
+        $this->publishes(AdminLTE::appServiceProviderClass(), 'adminlte');
+    }
+
+    /**
+     * Publish database config files.
+     */
+    private function publishDatabaseConfig()
+    {
+        $this->publishes(AdminLTE::databaseConfig(), 'adminlte');
+    }
+
+    /**
      * Enable (if active) spatie menu.
      */
-    protected function enableSpatieMenu()
+    private function enableSpatieMenu()
     {
         if ($this->app->getProvider('Spatie\Menu\Laravel\MenuServiceProvider')) {
             require config_path('menu.php');

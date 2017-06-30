@@ -113,7 +113,7 @@
                     <li><a href="{{ url('/login') }}">{{ trans('adminlte_lang::message.login') }}</a></li>
                 @else
                     <!-- User Account Menu -->
-                    <li class="dropdown user user-menu">
+                    <li class="dropdown user user-menu" id="user_menu">
                         <!-- Menu Toggle Button -->
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             <!-- The user image in the navbar-->
@@ -145,10 +145,10 @@
                             <!-- Menu Footer-->
                             <li class="user-footer">
                                 <div class="pull-left">
-                                    <a href="{{ url('/settings') }}" class="btn btn-default btn-flat">{{ trans('adminlte_lang::message.profile') }}</a>
+                                    <a href="{{ url('/user/profile') }}" class="btn btn-default btn-flat">{{ trans('adminlte_lang::message.profile') }}</a>
                                 </div>
                                 <div class="pull-right">
-                                    <a href="{{ url('/logout') }}" class="btn btn-default btn-flat"
+                                    <a href="{{ url('/logout') }}" class="btn btn-default btn-flat" id="logout"
                                        onclick="event.preventDefault();
                                                  document.getElementById('logout-form').submit();">
                                         {{ trans('adminlte_lang::message.signout') }}
